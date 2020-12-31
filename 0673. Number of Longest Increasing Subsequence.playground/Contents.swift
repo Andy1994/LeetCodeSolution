@@ -1,49 +1,42 @@
+/*
+ 673. Number of Longest Increasing Subsequence
+ 
+ Given an integer array nums, return the number of longest increasing subsequences.
+
+ Notice that the sequence has to be strictly increasing.
+ */
+
 class Solution {
-    
-    /// old version --- time out
-    var resultArray = [[Int]]()
-    var sum = 1
-    
     func findNumberOfLIS(_ nums: [Int]) -> Int {
-        guard nums.count > 0 else {
-            return 0
-        }
-        for index in 0 ..< nums.count {
-            recursion(nums, index, [])
-        }
-        resultArray = resultArray.sorted(by: { (array1, array2) -> Bool in
-            return array1.count > array2.count
-        })
-        for index in 1 ..< resultArray.count {
-            if resultArray[index].count == resultArray[0].count {
-                sum += 1
-            }
-        }
-        return sum
-    }
-    
-    func recursion(_ nums: [Int], _ index: Int, _ result: [Int]) {
-        var result = result
-        if result.count == 0 {
-            result.append(index)
-        } else {
-            if nums[index] > nums[result.last ?? 0] {
-                result.append(index)
-            }
-        }
-        if index != nums.count - 1 {
-            for i in index + 1 ..< nums.count {
-                recursion(nums, i, result)
-            }
-        } else {
-            for array in resultArray {
-                if array == result {
-                    return
+        var dp: [[Int]] = Array(repeating: [1,1], count: nums.count)
+        var totalMax = 1
+        var totalCount = 1
+        for i in 1 ..< nums.count {
+            var currentMax = 1
+            var currentCount = 1
+            for j in 0 ..< i {
+                if nums[i] > nums[j] {
+                    let tempMax = dp[j][0] + 1
+                    if (tempMax == currentMax) {
+                        currentCount += dp[j][1]
+                    } else if tempMax > currentMax {
+                        currentMax = tempMax
+                        currentCount = dp[j][1]
+                    }
                 }
             }
-            resultArray.append(result)
+            dp[i][0] = currentMax
+            dp[i][1] = currentCount
+            if currentMax == totalMax {
+                totalCount += currentCount
+            } else if currentMax > totalMax {
+                totalMax = currentMax
+                totalCount = currentCount
+            }
         }
+        return totalCount
     }
 }
 
-print(Solution().findNumberOfLIS([1,2,3]))
+print(Solution().findNumberOfLIS([1,2,4,3,5,4,7,2]))
+
